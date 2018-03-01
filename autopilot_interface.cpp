@@ -95,6 +95,29 @@ set_position(float x, float y, float z, mavlink_set_position_target_local_ned_t 
 
 }
 
+/*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+* Set mocap
+*
+* Modifies a mavlink_att_pos_mocap_t struct with XYZ location and quaternion orientation.
+* 
+*/
+void
+set_mocap(float[4] q, float x, float y, float z, mavlink_att_pos_mocap_t &sp)
+{
+	sp.type_mask =
+		MAVLINK_MSG_ID_ATT_POS_MOCAP;
+
+	//sp.coordinate_frame = MAV_FRAME_LOCAL_NED;
+	sp.q = q;
+	sp.x = x;
+	sp.y = y;
+	sp.z = z;
+
+	printf("MOCAP Position XYZ = [ %.4f , %.4f , %.4f ] \n", sp.x, sp.y, sp.z);
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /*
  * Set target local ned velocity
  *
@@ -224,6 +247,17 @@ Autopilot_Interface::
 update_setpoint(mavlink_set_position_target_local_ned_t setpoint)
 {
 	current_setpoint = setpoint;
+}
+
+
+// ------------------------------------------------------------------------------
+//   Update Setpoint
+// ------------------------------------------------------------------------------
+void
+Autopilot_Interface::
+update_mocap(mavlink_att_pos_mocap_t position)
+{
+	current_position = position;
 }
 
 
@@ -449,6 +483,50 @@ write_setpoint()
 	return;
 }
 
+// ------------------------------------------------------------------------------
+//   Write mocap Message
+// ------------------------------------------------------------------------------
+void
+Autopilot_Interface::
+write_mocap()
+{
+	// --------------------------------------------------------------------------
+	//   PACK PAYLOAD
+	// --------------------------------------------------------------------------
+
+	// pull from position target
+	mavlink_att_pos_mocap_t sp = current_mocap_position;
+
+	// double check some system parameters
+	if (not sp.time_boot_ms)
+		sp.time_boot_ms = (uint32_t)(get_time_usec() / 1000);
+	sp.target_system = system_id;
+	sp.target_component = autopilot_id;
+
+
+	// --------------------------------------------------------------------------
+	//   ENCODE
+	// --------------------------------------------------------------------------
+
+	mavlink_message_t message;
+	mavlink_att_pos_mocap_encode(system_id, companion_id, &message, &sp);
+
+
+	// --------------------------------------------------------------------------
+	//   WRITE
+	// --------------------------------------------------------------------------
+
+	// do the write
+	int len = write_message(message);
+
+	// check the write
+	if (len <= 0)
+		fprintf(stderr, "WARNING: could not send MAVLINK_MSG_ID_ATT_POS_MOCAP \n");
+	//	else
+	//		printf("%lu POSITION_TARGET  = [ %f , %f , %f ] \n", write_count, position_target.x, position_target.y, position_target.z);
+
+	return;
+}
 
 // ------------------------------------------------------------------------------
 //   Start Off-Board Mode

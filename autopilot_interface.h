@@ -204,6 +204,9 @@ struct Mavlink_Messages {
 	// Attitude
 	mavlink_attitude_t attitude;
 
+	// Mocap
+	mavlink_att_pos_mocap_t att_pos_mocap
+
 	// System Parameters?
 
 
@@ -257,7 +260,12 @@ public:
 	Mavlink_Messages current_messages;
 	mavlink_set_position_target_local_ned_t initial_position;
 
+	mavlink_att_pos_mocap_t initial_mocap_position
+
 	void update_setpoint(mavlink_set_position_target_local_ned_t setpoint);
+
+	void update_mocap(mavlink_att_pos_mocap_t position);
+
 	void read_messages();
 	int  write_message(mavlink_message_t message);
 
@@ -284,11 +292,15 @@ private:
 
 	mavlink_set_position_target_local_ned_t current_setpoint;
 
+	mavlink_att_pos_mocap_t  current_mocap_position;
+
 	void read_thread();
 	void write_thread(void);
 
 	int toggle_offboard_control( bool flag );
 	void write_setpoint();
+
+	void write_mocap();
 
 };
 
