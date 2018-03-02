@@ -57,9 +57,9 @@
 #include <cstdlib>
 #include <stdio.h>   // Standard input/output definitions
 
-//Windows Replacement for unistd.h
+
 //#include <unistd.h>
-#include<io.h>
+#include<io.h>       //Windows Replacement for unistd.h
 
 #include <fcntl.h>   // File control definitions
 #include <termios.h> // POSIX terminal control definitions
