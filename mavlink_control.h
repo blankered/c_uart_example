@@ -55,7 +55,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstdlib>
-#include <unistd.h>
+
+//Windows Replacement for unistd.h
+//#include <unistd.h>
+#include<io.h>
+
 #include <cmath>
 #include <string.h>
 #include <inttypes.h>
