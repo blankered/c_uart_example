@@ -59,7 +59,10 @@
 
 #include <signal.h>
 #include <time.h>
-#include <sys/time.h>
+
+//Possible Windows Replacement for
+//#include <sys/time.h>
+#include <winsock2.h>
 
 #include <common/mavlink.h>
 

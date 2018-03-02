@@ -56,7 +56,11 @@
 
 #include <cstdlib>
 #include <stdio.h>   // Standard input/output definitions
-#include <unistd.h>  // UNIX standard function definitions
+
+//Windows Replacement for unistd.h
+//#include <unistd.h>
+#include<io.h>
+
 #include <fcntl.h>   // File control definitions
 #include <termios.h> // POSIX terminal control definitions
 #include <pthread.h> // This uses POSIX Threads

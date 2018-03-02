@@ -706,7 +706,6 @@
     <ClInclude Include="natnetsdk\include\NatNetServer.h" />
     <ClInclude Include="natnetsdk\include\NatNetTypes.h" />
     <ClInclude Include="serial_port.h" />
-    <ClInclude Include="unistd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

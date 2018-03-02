@@ -1832,8 +1832,5 @@
     <ClInclude Include="mavlink\include\mavlink\v2.0\uavionix\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="unistd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
