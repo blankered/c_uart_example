@@ -193,52 +193,82 @@ Serial_Port::
 read_message_win32(mavlink_message_t &message)
 {
 
-	uint8_t          cp;
-	mavlink_status_t status;
-	uint8_t          msgReceived = false;
+	{
+		uint8_t          cp;
+		mavlink_status_t status;
+		uint8_t          msgReceived = false;
 
-	// --------------------------------------------------------------------------
-	//   READ FROM PORT
-	// --------------------------------------------------------------------------
+		// --------------------------------------------------------------------------
+		//   READ FROM PORT
+		// --------------------------------------------------------------------------
 
-	// this function locks the port during read
-	int result = _read_port(cp);
-	
-	/******************************
-	*
-	* Reading from a file
-	*
-	*******************************/
-	//the amount of the data actually
-	//read will be returned in
-	//this variable
-	DWORD read = -1;
-	ReadFile(
-		//the HANDLE that we
-		//are reading from
-		fileHandle,
-		//a pointer to an array
-		//of words that we
-		//want to read
-		data,
-		//the size of the
-		//array of values to
-		//be read
-		size,
-		//the address of a DWORD
-		//that the number of words
-		//actually read will
-		//be stored in
-		&read,
-		//a pointer to an
-		//overlapped_reader struct
-		//that is used in overlapped
-		//reading.  NULL in out case
-		NULL);
+		// this function locks the port during read
+		int result = _read_port_win32(cp);
+
+
+		// --------------------------------------------------------------------------
+		//   PARSE MESSAGE
+		// --------------------------------------------------------------------------
+		if (result > 0)
+		{
+			// the parsing
+			msgReceived = mavlink_parse_char(MAVLINK_COMM_1, cp, &message, &status);
+
+			// check for dropped packets
+			if ((lastStatus.packet_rx_drop_count != status.packet_rx_drop_count) && debug)
+			{
+				printf("ERROR: DROPPED %d PACKETS\n", status.packet_rx_drop_count);
+				unsigned char v = cp;
+				fprintf(stderr, "%02x ", v);
+			}
+			lastStatus = status;
+		}
+
+		// Couldn't read from port
+		else
+		{
+			fprintf(stderr, "ERROR: Could not read from fd %d\n", fd);
+		}
+
+		// --------------------------------------------------------------------------
+		//   DEBUGGING REPORTS
+		// --------------------------------------------------------------------------
+		if (msgReceived && debug)
+		{
+			// Report info
+			printf("Received message from serial with ID #%d (sys:%d|comp:%d):\n", message.msgid, message.sysid, message.compid);
+
+			fprintf(stderr, "Received serial data: ");
+			unsigned int i;
+			uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+
+			// check message is write length
+			unsigned int messageLength = mavlink_msg_to_send_buffer(buffer, &message);
+
+			// message length error
+			if (messageLength > MAVLINK_MAX_PACKET_LEN)
+			{
+				fprintf(stderr, "\nFATAL ERROR: MESSAGE LENGTH IS LARGER THAN BUFFER SIZE\n");
+			}
+
+			// print out the buffer
+			else
+			{
+				for (i = 0; i<messageLength; i++)
+				{
+					unsigned char v = buffer[i];
+					fprintf(stderr, "%02x ", v);
+				}
+				fprintf(stderr, "\n");
+			}
+		}
+
+		// Done!
+		return msgReceived;
 }
 
 // ------------------------------------------------------------------------------
-//   Write to Serial
+//   Write to Serial - unix
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -267,45 +297,13 @@ write_message_win32(const mavlink_message_t &message)
 	// Translate message to buffer
 	unsigned len = mavlink_msg_to_send_buffer((uint8_t*)buf, &message);
 
-	/******************************
-	*
-	* Writing to a file
-	*
-	*******************************/
-	//the amount of the data actually
-	//written will be returned in
-	//this variable
-	DWORD write = -1;
-	WriteFile(
-		//the HANDLE that we
-		//are writing to
-		fileHandle,
-		//a pointer to an array
-		//of words that we
-		//want to write
-		data,
-		//the size of the
-		//array of values to
-		//be written
-		size,
-		//the address of a DWORD
-		//that the number of words
-		//actually written will
-		//be stored in
-		&write,
-		//a pointer to an
-		//overlapped_reader struct
-		//that is used in overlapped
-		//writing.  NULL in out case
-		NULL);
-	//Because we are using non - overlapped input / output
-	//	operations the ReadFile() and WriteFile() operations
-	//	will block until the requested data is either received
-	//	or the operation times out.
+	int bytesWritten = _write_port_win32(buf, len);
+
+	return bytesWritten;
 }
 
 // ------------------------------------------------------------------------------
-//   Open Serial Port
+//   Open Serial Port - unix
 // ------------------------------------------------------------------------------
 /**
  * throws EXIT_FAILURE if could not open the port
@@ -462,7 +460,7 @@ close_serial_win32()
 }
 
 // ------------------------------------------------------------------------------
-//   Convenience Functions
+//   Convenience Functions - unix
 // ------------------------------------------------------------------------------
 void
 Serial_Port::
@@ -478,9 +476,25 @@ stop()
 	close_serial();
 }
 
+// ------------------------------------------------------------------------------
+//   Convenience Functions - win32
+// ------------------------------------------------------------------------------
+void
+Serial_Port::
+start_win32()
+{
+	open_serial_win32();
+}
+
+void
+Serial_Port::
+stop_win32()
+{
+	close_serial_win32();
+}
 
 // ------------------------------------------------------------------------------
-//   Quit Handler
+//   Quit Handler - unix
 // ------------------------------------------------------------------------------
 void
 Serial_Port::
@@ -491,6 +505,20 @@ handle_quit( int sig )
 	}
 	catch (int error) {
 		fprintf(stderr,"Warning, could not stop serial port\n");
+	}
+}
+
+// ------------------------------------------------------------------------------
+//   Quit Handler - win32
+// ------------------------------------------------------------------------------
+void
+Serial_Port::
+handle_quit_win32(int sig)
+{
+	//Close the fileHandle, thus
+	//releasing the device.
+	if (!CloseFile(fileHandle)) {
+		fprintf(stderr, "Warning, could not stop serial port\n");
 	}
 }
 
@@ -529,10 +557,10 @@ _open_port(const char* port)
 // ------------------------------------------------------------------------------
 //   Helper Function - Open Serial Port File Descriptor - win32
 // ------------------------------------------------------------------------------
-// Where the actual port opening happens, returns file descriptor 'fd'
+// Where the actual port opening happens, returns fileHandle 'fileHandle'
 int
 Serial_Port::
-_open_port_win32(const char* port)
+_open_port_win32(const char* gszPort)
 {
 
 	//The function used to open the serial port in the Win -
@@ -590,7 +618,7 @@ _open_port_win32(const char* port)
 }
 
 // ------------------------------------------------------------------------------
-//   Helper Function - Setup Serial Port
+//   Helper Function - Setup Serial Port - unix
 // ------------------------------------------------------------------------------
 // Sets configuration, flags, and baud rate
 bool
@@ -736,7 +764,7 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 
 
 // ------------------------------------------------------------------------------
-//   Helper Function - Setup Serial Port win32
+//   Helper Function - Setup Serial Port - win32
 // ------------------------------------------------------------------------------
 // Sets configuration, flags, and baud rate
 bool
@@ -858,6 +886,8 @@ _read_port(uint8_t &cp)
 
 	int result = read(fd, &cp, 1);
 
+
+
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
@@ -875,7 +905,41 @@ _read_port_win32(uint8_t &cp)
 	// Lock
 	pthread_mutex_lock(&lock);
 
-	int result = read(fd, &cp, 1);
+	//int result = read(fd, &cp, 1);
+
+	data = &cp;
+
+	/******************************
+	*
+	* Reading from a file
+	*
+	*******************************/
+	//the amount of the data actually
+	//read will be returned in
+	//this variable
+	DWORD read = -1;
+	ReadFile(
+		//the HANDLE that we
+		//are reading from
+		fileHandle,
+		//a pointer to an array
+		//of words that we
+		//want to read
+		data,
+		//the size of the
+		//array of values to
+		//be read
+		size,
+		//the address of a DWORD
+		//that the number of words
+		//actually read will
+		//be stored in
+		&read,
+		//a pointer to an
+		//overlapped_reader struct
+		//that is used in overlapped
+		//reading.  NULL in out case
+		NULL);
 
 	// Unlock
 	pthread_mutex_unlock(&lock);
@@ -884,7 +948,7 @@ _read_port_win32(uint8_t &cp)
 }
 
 // ------------------------------------------------------------------------------
-//   Write Port with Lock
+//   Write Port with Lock - unix
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -902,6 +966,69 @@ _write_port(char *buf, unsigned len)
 
 	// Unlock
 	pthread_mutex_unlock(&lock);
+
+
+	return bytesWritten;
+}
+
+// ------------------------------------------------------------------------------
+//   Write Port with Lock - win32
+// ------------------------------------------------------------------------------
+int
+Serial_Port::
+_write_port_win32(char *buf, unsigned len)
+{
+
+	// Lock
+	// pthread_mutex_lock(&lock);
+
+	// Write packet via serial link
+	//const int bytesWritten = static_cast<int>(write(fd, buf, len));
+
+	data = buff;
+	size = len;
+
+	/******************************
+	*
+	* Writing to a file
+	*
+	*******************************/
+	//the amount of the data actually
+	//written will be returned in
+	//this variable
+	DWORD write = -1;
+	WriteFile(
+		//the HANDLE that we
+		//are writing to
+		fileHandle,
+		//a pointer to an array
+		//of words that we
+		//want to write
+		data,
+		//the size of the
+		//array of values to
+		//be written
+		size,
+		//the address of a DWORD
+		//that the number of words
+		//actually written will
+		//be stored in
+		&write,
+		//a pointer to an
+		//overlapped_reader struct
+		//that is used in overlapped
+		//writing.  NULL in out case
+		NULL);
+	//Because we are using non - overlapped input / output
+	//	operations the ReadFile() and WriteFile() operations
+	//	will block until the requested data is either received
+	//	or the operation times out.
+
+	// Wait until all data has been written
+	// tcdrain(fd);
+
+	// Unlock
+	// pthread_mutex_unlock(&lock);
 
 
 	return bytesWritten;
