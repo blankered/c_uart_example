@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{EB1CAEC7-D971-43AC-9E16-6B941C70C657}</ProjectGuid>
+    <ProjectGuid>{B619572E-9C81-4F69-A051-B138305474AF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -102,9 +102,10 @@
     <ClCompile Include="autopilot_interface.cpp" />
     <ClCompile Include="mavlink_control.cpp" />
     <ClCompile Include="PacketClient.cpp" />
-    <ClCompile Include="serial_port.cpp" />
+    <ClCompile Include="serial_port_unix.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\pthread-win32\Header.h" />
     <ClInclude Include="autopilot_interface.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\ardupilotmega\ardupilotmega.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\ardupilotmega\mavlink.h" />
@@ -449,7 +450,14 @@
     <ClInclude Include="natnetsdk\include\NatNetRepeater.h" />
     <ClInclude Include="natnetsdk\include\NatNetServer.h" />
     <ClInclude Include="natnetsdk\include\NatNetTypes.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="serial_port.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MOCAP.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um\commdlg.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

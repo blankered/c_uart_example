@@ -24,7 +24,7 @@
     <ClCompile Include="PacketClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="serial_port.cpp">
+    <ClCompile Include="serial_port_unix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,18 +36,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="serial_port.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="natnetsdk\include\NatNetClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="natnetsdk\include\NatNetRepeater.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="natnetsdk\include\NatNetServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="natnetsdk\include\NatNetTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mavlink\include\mavlink\v2.0\checksum.h">
@@ -1064,5 +1052,33 @@
     <ClInclude Include="mavlink\include\mavlink\v2.0\uavionix\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="natnetsdk\include\NatNetClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="natnetsdk\include\NatNetRepeater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="natnetsdk\include\NatNetServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="natnetsdk\include\NatNetTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pthread-win32\Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MOCAP.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um\commdlg.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

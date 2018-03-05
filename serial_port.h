@@ -57,13 +57,20 @@
 #include <cstdlib>
 #include <stdio.h>   // Standard input/output definitions
 
-
-//#include <unistd.h>
-#include<io.h>       //Windows Replacement for unistd.h
-
 #include <fcntl.h>   // File control definitions
-#include <termios.h> // POSIX terminal control definitions
-#include <pthread.h> // This uses POSIX Threads
+
+#if defined(_win32)
+	#include <windows.h>
+	#include <tchar.h>
+	#include <stdio.h>
+	#include <io.h>
+#else
+	#include <unistd.h>
+	#include <termios.h> // POSIX terminal control definitions
+	#include <pthread.h> // This uses POSIX Threads
+#endif
+
+
 #include <signal.h>
 
 #include <common/mavlink.h>
