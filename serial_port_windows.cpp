@@ -789,14 +789,9 @@ _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hard
 	//set the length of the DCB
 	dcb.DCBlength = sizeof(dcb);
 	//try to build the DCB
-	3
-		//The function takes a string that
-		//is formatted as
-		//speed,parity,data size,stop bits
-		//the speed is the speed
-		//    of the device in BAUD
-		//the parity is the
-		//    type or parity used
+		//The function takes a string that is formatted as
+		//speed,parity,data size,stop bits the speed is the speed
+		//of the device in BAUD the parity is the type or parity used
 		//--n for none
 		//--e for even
 		//--o for odd
@@ -805,15 +800,89 @@ _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hard
 		//the stop bits is the
 		//    number of stop bits used
 		//  typically 1 or 2
-		if (!BuildCommDCB("9600,n,8,1", &dcb)) {
+
+	switch (baud)
+	{
+	case 1200:
+		if (cfsetispeed(&config, B1200) < 0 || cfsetospeed(&config, B1200) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
 			return false;
 		}
+		break;
+	case 1800:
+		cfsetispeed(&config, B1800);
+		cfsetospeed(&config, B1800);
+		break;
+	case 9600:
+		cfsetispeed(&config, B9600);
+		cfsetospeed(&config, B9600);
+		break;
+	case 19200:
+		cfsetispeed(&config, B19200);
+		cfsetospeed(&config, B19200);
+		break;
+	case 38400:
+		if (cfsetispeed(&config, B38400) < 0 || cfsetospeed(&config, B38400) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
+			return false;
+		}
+		break;
+	case 57600:
+		if (cfsetispeed(&config, B57600) < 0 || cfsetospeed(&config, B57600) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
+			return false;
+		}
+		break;
+	case 115200:
+		if (cfsetispeed(&config, B115200) < 0 || cfsetospeed(&config, B115200) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
+			return false;
+		}
+		break;
+
+		// These two non-standard (by the 70'ties ) rates are fully supported on
+		// current Debian and Mac OS versions (tested since 2010).
+	case 460800:
+		if (cfsetispeed(&config, B460800) < 0 || cfsetospeed(&config, B460800) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
+			return false;
+		}
+		break;
+	case 921600:
+		if (cfsetispeed(&config, B921600) < 0 || cfsetospeed(&config, B921600) < 0)
+		{
+			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
+			return false;
+		}
+		break;
+	default:
+		fprintf(stderr, "ERROR: Desired baud rate %d could not be set, aborting.\n", baud);
+		return false;
+
+		break;
+	}
+
+
+
+
+	if (!BuildCommDCB("9600,n,8,1", &dcb)) {
+		return false;
+	}
+
+
 	//set the state of fileHandle to be dcb
 	//returns a boolean indicating success
 	//or failure
 	if (!SetCommState(filehandle, &dcb)) {
 		return false;
 	}
+
+
 	//set the buffers to be size 1024
 	//of fileHandle
 	//Also returns a boolean indicating
@@ -826,6 +895,8 @@ _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hard
 	{
 		return false;
 	}
+
+
 	//Next, the timeouts of the port must be set.It is im -
 	//portant to note that if the timeouts of a port are not
 	//set in windows, the API states that undefined results
@@ -860,9 +931,14 @@ _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hard
 	//set the timeouts of fileHandle to be
 	//what is contained in cmt
 	//returns boolean success or failure
+
+
 	if (!SetCommTimeouts(fileHandle, &cmt)) {
 		//error code goes here
+		fprintf(stderr, "\nERROR: could not set configuration of fd %d\n", fileHandle);
 	}
+
+
 	//Provided all the configuration functions returned suc -
 	//cess, the serial port is now ready to be used to send
 	//and receive data.It may be necessary, depending
@@ -885,7 +961,6 @@ _read_port(uint8_t &cp)
 	pthread_mutex_lock(&lock);
 
 	int result = read(fd, &cp, 1);
-
 
 
 	// Unlock
@@ -944,7 +1019,7 @@ _read_port_win32(uint8_t &cp)
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
-	return result;
+	return read;
 }
 
 // ------------------------------------------------------------------------------
@@ -967,7 +1042,6 @@ _write_port(char *buf, unsigned len)
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
-
 	return bytesWritten;
 }
 
@@ -980,10 +1054,10 @@ _write_port_win32(char *buf, unsigned len)
 {
 
 	// Lock
-	// pthread_mutex_lock(&lock);
+	pthread_mutex_lock(&lock);
 
 	// Write packet via serial link
-	//const int bytesWritten = static_cast<int>(write(fd, buf, len));
+	const int bytesWritten = static_cast<int>(write(fd, buf, len));
 
 	data = buff;
 	size = len;
@@ -997,6 +1071,7 @@ _write_port_win32(char *buf, unsigned len)
 	//written will be returned in
 	//this variable
 	DWORD write = -1;
+
 	WriteFile(
 		//the HANDLE that we
 		//are writing to
@@ -1025,12 +1100,12 @@ _write_port_win32(char *buf, unsigned len)
 	//	or the operation times out.
 
 	// Wait until all data has been written
-	// tcdrain(fd);
+	tcdrain(fd);
 
 	// Unlock
-	// pthread_mutex_unlock(&lock);
+	pthread_mutex_unlock(&lock);
 
 
-	return bytesWritten;
+	return write;
 }
 
