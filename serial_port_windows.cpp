@@ -192,6 +192,18 @@ int
 Serial_Port::
 read_message_win32(mavlink_message_t &message)
 {
+
+	uint8_t          cp;
+	mavlink_status_t status;
+	uint8_t          msgReceived = false;
+
+	// --------------------------------------------------------------------------
+	//   READ FROM PORT
+	// --------------------------------------------------------------------------
+
+	// this function locks the port during read
+	int result = _read_port(cp);
+	
 	/******************************
 	*
 	* Reading from a file
@@ -250,6 +262,11 @@ int
 Serial_Port::
 write_message_win32(const mavlink_message_t &message)
 {
+	char buf[300];
+
+	// Translate message to buffer
+	unsigned len = mavlink_msg_to_send_buffer((uint8_t*)buf, &message);
+
 	/******************************
 	*
 	* Writing to a file
@@ -259,7 +276,7 @@ write_message_win32(const mavlink_message_t &message)
 	//written will be returned in
 	//this variable
 	DWORD write = -1;
-	ReadFile(
+	WriteFile(
 		//the HANDLE that we
 		//are writing to
 		fileHandle,
@@ -275,7 +292,7 @@ write_message_win32(const mavlink_message_t &message)
 		//that the number of words
 		//actually written will
 		//be stored in
-		&read,
+		&write,
 		//a pointer to an
 		//overlapped_reader struct
 		//that is used in overlapped
@@ -355,42 +372,43 @@ void
 Serial_Port::
 open_serial_win32()
 {
+	HANDLE fileHandle;
+	fileHandle =
+		CreateFile(
+			//the name of the port (as a string)
+			//eg. COM1, COM2, COM4
+			gszPort,
+			//must have read AND write access to
+			//port
+			GENERIC_READ | GENERIC_WRITE,
+			//sharing mode
+			//ports CANNOT be shared
+			//(hence the 0)
+			0,
+			//security attributes
+			//0 here means that this file handle
+			//cannot be inherited
+			0,
+			//The port MUST exist before-hand
+			//we cannot create serial ports
+			OPEN_EXISTING,
+			//Overlapped/Non-Overlapped Mode.
+			//This paper will deal with
+			//non-overlapped communication.
+			//To use overlapped communication
+			//replace 0 with
+			//FFILE_FLAG_OVERLAPPED
+			0,
+			//HANDLE of a template file
+			//which will supply attributes and
+			//permissions.  Not used with
+			//port access.
+			0);
 
 //The function used to open the serial port in the Win -
 //dows operating system is CreateFile() which is used
 //as follows :
-HANDLE fileHandle;
-fileHandle =
-CreateFile(
-	//the name of the port (as a string)
-	//eg. COM1, COM2, COM4
-	gszPort,
-	//must have read AND write access to
-	//port
-	GENERIC_READ | GENERIC_WRITE,
-	//sharing mode
-	//ports CANNOT be shared
-	//(hence the 0)
-	0,
-	//security attributes
-	//0 here means that this file handle
-	//cannot be inherited
-	0,
-	//The port MUST exist before-hand
-	//we cannot create serial ports
-	OPEN_EXISTING,
-	//Overlapped/Non-Overlapped Mode.
-	//This paper will deal with
-	//non-overlapped communication.
-	//To use overlapped communication
-	//replace 0 with
-	//FFILE_FLAG_OVERLAPPED
-	0,
-	//HANDLE of a template file
-	//which will supply attributes and
-	//permissions.  Not used with
-	//port access.
-	0);
+
 //CreateFile() returns a HANDLE object that can then
 //be used to access the port.If CreateFile() fails, the
 //HANDLE object that is returned is invalid and va -
@@ -490,6 +508,37 @@ handle_quit( int sig )
 int
 Serial_Port::
 _open_port(const char* port)
+{
+	// Open serial port
+	// O_RDWR - Read and write
+	// O_NOCTTY - Ignore special chars like CTRL-C
+	fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
+
+	// Check for Errors
+	if (fd == -1)
+	{
+		/* Could not open the port. */
+		return(-1);
+	}
+
+	// Finalize
+	else
+	{
+		fcntl(fd, F_SETFL, 0);
+	}
+
+	// Done!
+	return fd;
+}
+
+
+// ------------------------------------------------------------------------------
+//   Helper Function - Open Serial Port File Descriptor
+// ------------------------------------------------------------------------------
+// Where the actual port opening happens, returns file descriptor 'fd'
+int
+Serial_Port::
+_open_port_win32(const char* port)
 {
 	// Open serial port
 	// O_RDWR - Read and write
@@ -659,6 +708,115 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 }
 
 
+// ------------------------------------------------------------------------------
+//   Helper Function - Setup Serial Port win32
+// ------------------------------------------------------------------------------
+// Sets configuration, flags, and baud rate
+bool
+Serial_Port::
+_setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hardware_control)
+{
+	//In Windows, setting up the serial port requires three
+	//steps.
+	//1. Create a DCB object and initialize it using the
+	//function BuildCommDCB().
+	//2. Set the serial port settings using the initialized
+	//DCB object using the function SetCommState().
+	//3. Set the size of the serial port read and write
+	//buffers using SetupComm().
+	//Code to accomplish this can be found below.
+	DCB dcb; //create the dcb
+			 //first, set every field
+			 //of the DCB to 0
+			 //to make sure there are
+			 //no invalid values
+	FillMemory(&dcb, sizeof(dcb), 0);
+	//set the length of the DCB
+	dcb.DCBlength = sizeof(dcb);
+	//try to build the DCB
+	3
+		//The function takes a string that
+		//is formatted as
+		//speed,parity,data size,stop bits
+		//the speed is the speed
+		//    of the device in BAUD
+		//the parity is the
+		//    type or parity used
+		//--n for none
+		//--e for even
+		//--o for odd
+		//the data size is the number of bits
+		//  that make up a work (typically 8)
+		//the stop bits is the
+		//    number of stop bits used
+		//  typically 1 or 2
+		if (!BuildCommDCB("9600,n,8,1", &dcb)) {
+			return false;
+		}
+	//set the state of fileHandle to be dcb
+	//returns a boolean indicating success
+	//or failure
+	if (!SetCommState(filehandle, &dcb)) {
+		return false;
+	}
+	//set the buffers to be size 1024
+	//of fileHandle
+	//Also returns a boolean indicating
+	//success or failure
+	if (!SetupComm(fileHandle,
+		//in queue
+		1024,
+		//out queue
+		1024))
+	{
+		return false;
+	}
+	//Next, the timeouts of the port must be set.It is im -
+	//portant to note that if the timeouts of a port are not
+	//set in windows, the API states that undefined results
+	//will occur.This leads to difficulty debugging because
+	//the errors are inconsistent and sporadic.To set the
+	//timeouts of the port an object of type COMMTIME -
+	//OUTS must be created and initialized and then ap -
+	//plied to the port using the function SetCommTime -
+	//outs(), as the code below demonstrates.
+	COMMTIMEOUTS cmt; //create the object
+					  //the maximum amount of time
+					  //allowed to pass between
+					  //the arrival of two bytes on
+					  //the read line (in ms)
+	cmt.ReadIntervalTimeout = 1000;
+	//value used to calculate the total
+	//time needed for a read operation
+	//which is
+	//  (num bytes to read) * (timeout)
+	// in ms
+	cmt.ReadTotalTimeoutMultiplier = 1000;
+	//This value is added to
+	//the previous one to generate
+	//the timeout value
+	//for a single read operation (in ms)
+	cmt.ReadTotalTimeoutConstant = 1000;
+	//the next two values are the same
+	//as their read counterparts, only
+	//applying to write operations
+	cmt.WriteTotalTimeoutConstant = 1000;
+	cmt.WriteTotalTimeoutMultiplier = 1000;
+	//set the timeouts of fileHandle to be
+	//what is contained in cmt
+	//returns boolean success or failure
+	if (!SetCommTimeouts(fileHandle, &cmt)) {
+		//error code goes here
+	}
+	//Provided all the configuration functions returned suc -
+	//cess, the serial port is now ready to be used to send
+	//and receive data.It may be necessary, depending
+	//on the application, to re - configure the serial port.It
+	//may be necessary, for instance, to change the speed
+	//of the port, or the timeout values in the middle of an
+	//application.
+}
+
 
 // ------------------------------------------------------------------------------
 //   Read Port with Lock
@@ -703,5 +861,4 @@ _write_port(char *buf, unsigned len)
 
 	return bytesWritten;
 }
-
 
