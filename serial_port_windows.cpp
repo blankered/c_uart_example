@@ -106,7 +106,7 @@ initialize_defaults()
 
 
 // ------------------------------------------------------------------------------
-//   Read from Serial
+//   Read from Serial - unix
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -186,7 +186,7 @@ read_message(mavlink_message_t &message)
 }
 
 // ------------------------------------------------------------------------------
-//   Read win32 from Serial
+//   Read from Serial - win32
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -256,7 +256,7 @@ write_message(const mavlink_message_t &message)
 }
 
 // ------------------------------------------------------------------------------
-//   Write win32 to Serial
+//   Write to Serial - win32
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -363,7 +363,7 @@ open_serial()
 }
 
 // ------------------------------------------------------------------------------
-//   Open win32 Serial Port
+//   Open Serial Port - win32
 // ------------------------------------------------------------------------------
 /**
 * throws EXIT_FAILURE if could not open the port
@@ -372,61 +372,55 @@ void
 Serial_Port::
 open_serial_win32()
 {
-	HANDLE fileHandle;
-	fileHandle =
-		CreateFile(
-			//the name of the port (as a string)
-			//eg. COM1, COM2, COM4
-			gszPort,
-			//must have read AND write access to
-			//port
-			GENERIC_READ | GENERIC_WRITE,
-			//sharing mode
-			//ports CANNOT be shared
-			//(hence the 0)
-			0,
-			//security attributes
-			//0 here means that this file handle
-			//cannot be inherited
-			0,
-			//The port MUST exist before-hand
-			//we cannot create serial ports
-			OPEN_EXISTING,
-			//Overlapped/Non-Overlapped Mode.
-			//This paper will deal with
-			//non-overlapped communication.
-			//To use overlapped communication
-			//replace 0 with
-			//FFILE_FLAG_OVERLAPPED
-			0,
-			//HANDLE of a template file
-			//which will supply attributes and
-			//permissions.  Not used with
-			//port access.
-			0);
+	// --------------------------------------------------------------------------
+	//   OPEN PORT
+	// --------------------------------------------------------------------------
+	printf("OPEN PORT\n");
 
-//The function used to open the serial port in the Win -
-//dows operating system is CreateFile() which is used
-//as follows :
+	fd = _open_port_win32(uart_name);
 
-//CreateFile() returns a HANDLE object that can then
-//be used to access the port.If CreateFile() fails, the
-//HANDLE object that is returned is invalid and va -
-//lidity can be tested using the following code :
-if (fileHandle == INVALID_HANDLE_VALUE) {
-	//error handling code here
-}
+	// Check success
+	if (fd == -1)
+	{
+		printf("failure, could not open port.\n");
+		throw EXIT_FAILURE;
+	}
 
-//Provided that the serial port is successfully opened
-//the next step is to configure it to the specific appli -
-//cation.
+	// --------------------------------------------------------------------------
+	//   SETUP PORT
+	// --------------------------------------------------------------------------
+	bool success = _setup_port(baudrate, 8, 1, false, false);
 
-return;
+	// --------------------------------------------------------------------------
+	//   CHECK STATUS
+	// --------------------------------------------------------------------------
+	if (!success)
+	{
+		printf("failure, could not configure port.\n");
+		throw EXIT_FAILURE;
+	}
+	if (fd <= 0)
+	{
+		printf("Connection attempt to port %s with %d baud, 8N1 failed, exiting.\n", uart_name, baudrate);
+		throw EXIT_FAILURE;
+	}
+
+	// --------------------------------------------------------------------------
+	//   CONNECTED!
+	// --------------------------------------------------------------------------
+	printf("Connected to %s with %d baud, 8 data bits, no parity, 1 stop bit (8N1)\n", uart_name, baudrate);
+	lastStatus.packet_rx_drop_count = 0;
+
+	status = true;
+
+	printf("\n");
+
+	return;
 
 }
 
 // ------------------------------------------------------------------------------
-//   Close Serial Port
+//   Close Serial Port - unix
 // ------------------------------------------------------------------------------
 void
 Serial_Port::
@@ -449,7 +443,7 @@ close_serial()
 
 
 // ------------------------------------------------------------------------------
-//   Close win32 Serial Port
+//   Close Serial Port - win32
 // ------------------------------------------------------------------------------
 void
 Serial_Port::
@@ -502,7 +496,7 @@ handle_quit( int sig )
 
 
 // ------------------------------------------------------------------------------
-//   Helper Function - Open Serial Port File Descriptor
+//   Helper Function - Open Serial Port File Descriptor - unix
 // ------------------------------------------------------------------------------
 // Where the actual port opening happens, returns file descriptor 'fd'
 int
@@ -533,33 +527,66 @@ _open_port(const char* port)
 
 
 // ------------------------------------------------------------------------------
-//   Helper Function - Open Serial Port File Descriptor
+//   Helper Function - Open Serial Port File Descriptor - win32
 // ------------------------------------------------------------------------------
 // Where the actual port opening happens, returns file descriptor 'fd'
 int
 Serial_Port::
 _open_port_win32(const char* port)
 {
-	// Open serial port
-	// O_RDWR - Read and write
-	// O_NOCTTY - Ignore special chars like CTRL-C
-	fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
 
-	// Check for Errors
-	if (fd == -1)
-	{
+	//The function used to open the serial port in the Win -
+	//dows operating system is CreateFile() which is used
+	//as follows :
+
+	HANDLE fileHandle;
+	fileHandle =
+		CreateFile(
+			//the name of the port (as a string)
+			//eg. COM1, COM2, COM4
+			gszPort,
+			//must have read AND write access to
+			//port
+			GENERIC_READ | GENERIC_WRITE,
+			//sharing mode
+			//ports CANNOT be shared
+			//(hence the 0)
+			0,
+			//security attributes
+			//0 here means that this file handle
+			//cannot be inherited
+			0,
+			//The port MUST exist before-hand
+			//we cannot create serial ports
+			OPEN_EXISTING,
+			//Overlapped/Non-Overlapped Mode.
+			//This paper will deal with
+			//non-overlapped communication.
+			//To use overlapped communication
+			//replace 0 with
+			//FFILE_FLAG_OVERLAPPED
+			0,
+			//HANDLE of a template file
+			//which will supply attributes and
+			//permissions.  Not used with
+			//port access.
+			0);
+
+	//CreateFile() returns a HANDLE object that can then
+	//be used to access the port.If CreateFile() fails, the
+	//HANDLE object that is returned is invalid and va -
+	//lidity can be tested using the following code :
+	if (fileHandle == INVALID_HANDLE_VALUE) {
+		//error handling code here
 		/* Could not open the port. */
 		return(-1);
 	}
 
-	// Finalize
-	else
-	{
-		fcntl(fd, F_SETFL, 0);
-	}
-
-	// Done!
-	return fd;
+	//Provided that the serial port is successfully opened
+	//the next step is to configure it to the specific appli -
+	//cation.
+	
+	return filehandle;
 }
 
 // ------------------------------------------------------------------------------
@@ -819,7 +846,7 @@ _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hard
 
 
 // ------------------------------------------------------------------------------
-//   Read Port with Lock
+//   Read Port with Lock - unix
 // ------------------------------------------------------------------------------
 int
 Serial_Port::
@@ -837,6 +864,24 @@ _read_port(uint8_t &cp)
 	return result;
 }
 
+// ------------------------------------------------------------------------------
+//   Read Port with Lock - win32
+// ------------------------------------------------------------------------------
+int
+Serial_Port::
+_read_port_win32(uint8_t &cp)
+{
+
+	// Lock
+	pthread_mutex_lock(&lock);
+
+	int result = read(fd, &cp, 1);
+
+	// Unlock
+	pthread_mutex_unlock(&lock);
+
+	return result;
+}
 
 // ------------------------------------------------------------------------------
 //   Write Port with Lock
