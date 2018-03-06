@@ -59,20 +59,17 @@
 
 #include <fcntl.h>   // File control definitions
 
-//#if defined(_win32)
-
-#include <windows.h>
-#include <tchar.h>
-#include <stdio.h>
-#include <io.h>
-
-/*
+#if defined(_win32)
+	#include <windows.h>
+	#include <tchar.h>
+	#include <stdio.h>
+	#include <io.h>
 #else
 	#include <unistd.h>
 	#include <termios.h> // POSIX terminal control definitions
+	#include <pthread.h> // This uses POSIX Threads
 #endif
-*/
-#include <pthread.h> // This uses POSIX Threads
+
 
 #include <signal.h>
 

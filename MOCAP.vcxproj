@@ -76,11 +76,13 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Users\CDSLAB-User\source\pthread-win32\Pre-built\include;C:\Users\CDSLAB-User\source\repos\c_uart_interface_example\mavlink\include\mavlink\v2.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>C:\Users\CDSLAB-User\source\pthread-win32\Pre-built\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +104,7 @@
     <ClCompile Include="autopilot_interface.cpp" />
     <ClCompile Include="mavlink_control.cpp" />
     <ClCompile Include="PacketClient.cpp" />
-    <ClCompile Include="serial_port_unix.cpp" />
+    <ClCompile Include="serial_port.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\pthread-win32\Header.h" />

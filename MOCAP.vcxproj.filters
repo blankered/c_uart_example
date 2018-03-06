@@ -24,7 +24,7 @@
     <ClCompile Include="PacketClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="serial_port_unix.cpp">
+    <ClCompile Include="serial_port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

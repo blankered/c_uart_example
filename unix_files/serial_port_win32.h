@@ -59,20 +59,17 @@
 
 #include <fcntl.h>   // File control definitions
 
-//#if defined(_win32)
-
-#include <windows.h>
-#include <tchar.h>
-#include <stdio.h>
-#include <io.h>
-
-/*
+#if defined(_win32)
+	#include <windows.h>
+	#include <tchar.h>
+	#include <stdio.h>
+	#include <io.h>
 #else
 	#include <unistd.h>
 	#include <termios.h> // POSIX terminal control definitions
+	#include <pthread.h> // This uses POSIX Threads
 #endif
-*/
-#include <pthread.h> // This uses POSIX Threads
+
 
 #include <signal.h>
 
@@ -135,14 +132,14 @@ public:
 	int  baudrate;
 	int  status;
 
-	int read_message(mavlink_message_t &message);
-	int write_message(const mavlink_message_t &message);
+	int read_message_win32(mavlink_message_t &message);
+	int write_message_win32(const mavlink_message_t &message);
 
-	void open_serial();
-	void close_serial();
+	void open_serial_win32();
+	void close_serial_win32();
 
-	void start();
-	void stop();
+	void start_win32();
+	void stop_win32();
 
 	void handle_quit( int sig );
 
@@ -152,10 +149,10 @@ private:
 	mavlink_status_t lastStatus;
 	pthread_mutex_t  lock;
 
-	int  _open_port(const char* port);
-	bool _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_control);
-	int  _read_port(uint8_t &cp);
-	int _write_port(char *buf, unsigned len);
+	int  _open_port_win32(const char* port);
+	bool _setup_port_win32(int baud, int data_bits, int stop_bits, bool parity, bool hardware_control);
+	int  _read_port_win32(uint8_t &cp);
+	int _write_port_win32(char *buf, unsigned len);
 
 };
 
