@@ -53,6 +53,32 @@ Usage [optional]:
 
 #define MAX_PACKETSIZE				100000	// max size of packet (actual packet size is dynamic)
 
+typedef struct MOCAP_RIGID_BODY {
+	int ID;
+	float x;
+	float y;
+	float z;
+	float qx;
+	float qy;
+	float qz;
+	float qw;
+} MOCAP_RIGID_BODY;
+
+
+void write_mocap_struct(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
+{
+	//struct MOCAP_RIGID_BODY;
+	MOCAP_RIGID_BODY.ID = ID;
+	MOCAP_RIGID_BODY.qx = qx;
+	MOCAP_RIGID_BODY.qy = qy;
+	MOCAP_RIGID_BODY.qz = qz;
+	MOCAP_RIGID_BODY.qw = qw;
+	MOCAP_RIGID_BODY.x  = x;
+	MOCAP_RIGID_BODY.y  = y;
+	MOCAP_RIGID_BODY.z  = z;
+}
+
+
 // sender
 typedef struct
 {
@@ -676,6 +702,10 @@ void Unpack(char* pData)
             printf("ID : %d\n", ID);
             printf("pos: [%3.2f,%3.2f,%3.2f]\n", x,y,z);
             printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
+
+			//MOCAP_RIGID_BODY(ID, qx, qy, qz, qw, x, y, z);
+
+			write_mocap_struct(ID, qx, qy, qz, qw, x, y, z);
 
             // associated marker positions
             int nRigidMarkers = 0;  memcpy(&nRigidMarkers, ptr, 4); ptr += 4;

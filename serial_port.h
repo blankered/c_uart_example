@@ -149,6 +149,9 @@ public:
 private:
 
 	int  fd;
+	
+	HANDLE fileHandle;
+
 	mavlink_status_t lastStatus;
 	pthread_mutex_t  lock;
 

@@ -452,6 +452,7 @@
     <ClInclude Include="natnetsdk\include\NatNetRepeater.h" />
     <ClInclude Include="natnetsdk\include\NatNetServer.h" />
     <ClInclude Include="natnetsdk\include\NatNetTypes.h" />
+    <ClInclude Include="PacketClient.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="serial_port.h" />
   </ItemGroup>

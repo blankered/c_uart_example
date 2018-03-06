@@ -1070,6 +1070,9 @@
     <ClInclude Include="..\..\pthread-win32\Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PacketClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MOCAP.rc">
