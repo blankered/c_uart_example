@@ -53,7 +53,11 @@ Usage [optional]:
 
 #define MAX_PACKETSIZE				100000	// max size of packet (actual packet size is dynamic)
 
-typedef struct MOCAP_RIGID_BODY {
+//global MOCAP_RIGID_BODY body;
+
+class MOCAP_RIGID_BODY
+{
+public:
 	int ID;
 	float x;
 	float y;
@@ -62,22 +66,25 @@ typedef struct MOCAP_RIGID_BODY {
 	float qy;
 	float qz;
 	float qw;
-} MOCAP_RIGID_BODY;
 
+	void write_mocap_data(int, float, float, float, float, float, float, float);
 
-void write_mocap_struct(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
+};
+
+void MOCAP_RIGID_BODY::write_mocap_data(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
 {
-	//struct MOCAP_RIGID_BODY;
-	MOCAP_RIGID_BODY.ID = ID;
-	MOCAP_RIGID_BODY.qx = qx;
-	MOCAP_RIGID_BODY.qy = qy;
-	MOCAP_RIGID_BODY.qz = qz;
-	MOCAP_RIGID_BODY.qw = qw;
-	MOCAP_RIGID_BODY.x  = x;
-	MOCAP_RIGID_BODY.y  = y;
-	MOCAP_RIGID_BODY.z  = z;
+	 //MOCAP_RIGID_BODY body;
+	 ID = ID;
+	 qx = qx;
+	 qy = qy;
+	 qz = qz;
+	 qw = qw;
+	 x  = x;
+	 y  = y;
+	 z  = z;
 }
 
+extern MOCAP_RIGID_BODY body;
 
 // sender
 typedef struct
@@ -705,7 +712,8 @@ void Unpack(char* pData)
 
 			//MOCAP_RIGID_BODY(ID, qx, qy, qz, qw, x, y, z);
 
-			write_mocap_struct(ID, qx, qy, qz, qw, x, y, z);
+			//MOCAP_RIGID_BODY body;
+		    body.write_mocap_data(ID, qx, qy, qz, qw, x, y, z);
 
             // associated marker positions
             int nRigidMarkers = 0;  memcpy(&nRigidMarkers, ptr, 4); ptr += 4;

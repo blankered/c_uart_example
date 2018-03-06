@@ -500,6 +500,7 @@ write_mocap()
 	// double check some system parameters
 	if (not sp.time_boot_ms)
 		sp.time_boot_ms = (uint32_t)(get_time_usec() / 1000);
+
 	sp.target_system = system_id;
 	sp.target_component = autopilot_id;
 
