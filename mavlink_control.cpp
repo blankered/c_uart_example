@@ -95,6 +95,22 @@ top (int argc, char **argv)
 	 */
 	Serial_Port serial_port(uart_name, baudrate);
 
+	// --------------------------------------------------------------------------
+	//   PACKETCLIENT.CPP THREAD STARTUP
+	// --------------------------------------------------------------------------
+
+	/*
+	* Instantiate a serial port object
+	*
+	* This object handles the opening and closing of the offboard computer's
+	* serial port over which it will communicate to an autopilot.  It has
+	* methods to read and write a mavlink_message_t object.  To help with read
+	* and write in the context of pthreading, it gaurds port operations with a
+	* pthread mutex lock.
+	*
+	*/
+	Packet_Client Packet_Client();
+
 
 	/*
 	 * Instantiate an autopilot interface object
@@ -112,6 +128,12 @@ top (int argc, char **argv)
 	 *
 	 */
 	Autopilot_Interface autopilot_interface(&serial_port);
+
+	// --------------------------------------------------------------------------
+	//  Start PacketClient.cpp Thread
+	// --------------------------------------------------------------------------
+
+
 
 	/*
 	 * Setup interrupt signal handler
@@ -176,8 +198,8 @@ commands(Autopilot_Interface &api)
 	//   START OFFBOARD MODE
 	// --------------------------------------------------------------------------
 
-	api.enable_offboard_control();
-	usleep(100); // give some time to let it sink in
+	//api.enable_offboard_control();
+	//usleep(100); // give some time to let it sink in
 
 	// now the autopilot is accepting setpoint commands
 
@@ -185,20 +207,20 @@ commands(Autopilot_Interface &api)
 	// --------------------------------------------------------------------------
 	//   SEND OFFBOARD COMMANDS
 	// --------------------------------------------------------------------------
-	printf("SEND OFFBOARD COMMANDS\n");
+	//printf("SEND OFFBOARD COMMANDS\n");
 
 	// initialize command data strtuctures
-	mavlink_set_position_target_local_ned_t sp;
-	mavlink_set_position_target_local_ned_t ip = api.initial_position;
+	//mavlink_set_position_target_local_ned_t sp;
+	//mavlink_set_position_target_local_ned_t ip = api.initial_position;
 
 	// autopilot_interface.h provides some helper functions to build the command
 
-
+/*
 	// Example 1 - Set Velocity
-//	set_velocity( -1.0       , // [m/s]
-//				  -1.0       , // [m/s]
-//				   0.0       , // [m/s]
-//				   sp        );
+	set_velocity( -1.0       , // [m/s]
+				  -1.0       , // [m/s]
+				   0.0       , // [m/s]
+	sp        );
 
 	// Example 2 - Set Position
 	 set_position( ip.x - 5.0 , // [m]
@@ -210,9 +232,13 @@ commands(Autopilot_Interface &api)
 	// Example 1.2 - Append Yaw Command
 	set_yaw( ip.yaw , // [rad]
 			 sp     );
+*/
 
 	// SEND THE COMMAND
-	api.update_setpoint(sp);
+	//api.update_setpoint(sp);
+
+	api.update_mocap
+
 	// NOW pixhawk will try to move
 
 	// Wait for 8 seconds, check position
@@ -233,7 +259,7 @@ commands(Autopilot_Interface &api)
 	//   STOP OFFBOARD MODE
 	// --------------------------------------------------------------------------
 
-	api.disable_offboard_control();
+	//api.disable_offboard_control();
 
 	// now pixhawk isn't listening to setpoint commands
 
