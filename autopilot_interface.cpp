@@ -101,14 +101,17 @@ set_position(float x, float y, float z, mavlink_set_position_target_local_ned_t 
 * Modifies a mavlink_att_pos_mocap_t struct with XYZ location and quaternion orientation.
 * 
 */
-void
-set_mocap(float[4] q, float x, float y, float z, mavlink_att_pos_mocap_t &sp)
-{
-	sp.type_mask =
-		MAVLINK_MSG_ID_ATT_POS_MOCAP;
 
+//extern MAVPACKED;
+
+void
+set_mocap(uint64_t time_usec, float q[4], float x, float y, float z, mavlink_att_pos_mocap_t &sp)
+{
+
+	//sp.type_mask = MAVLINK_MSG_ID_ATT_POS_MOCAP;
 	//sp.coordinate_frame = MAV_FRAME_LOCAL_NED;
-	sp.q = q;
+	sp.time_usec = time_usec;
+	sp.q[4] = q[4];
 	sp.x = x;
 	sp.y = y;
 	sp.z = z;

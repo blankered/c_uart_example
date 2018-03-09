@@ -52,7 +52,7 @@
 // ------------------------------------------------------------------------------
 //   Includes
 // ------------------------------------------------------------------------------
-
+#include "PacketClient.h"
 #include "mavlink_control.h"
 
 
@@ -102,14 +102,12 @@ top (int argc, char **argv)
 	/*
 	* Instantiate a serial port object
 	*
-	* This object handles the opening and closing of the offboard computer's
-	* serial port over which it will communicate to an autopilot.  It has
-	* methods to read and write a mavlink_message_t object.  To help with read
-	* and write in the context of pthreading, it gaurds port operations with a
-	* pthread mutex lock.
 	*
 	*/
-	Packet_Client Packet_Client();
+	int d = 1;
+	char *add;
+
+	Packet_Client_Start(d,&add);
 
 
 	/*

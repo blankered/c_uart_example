@@ -28,7 +28,6 @@ Usage [optional]:
 
 */
 
-#include "PacketClient.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <conio.h>
@@ -56,7 +55,21 @@ Usage [optional]:
 
 //global MOCAP_RIGID_BODY body;
 
+class MOCAP_RIGID_BODY
+{
+public:
+	int ID;
+	float x;
+	float y;
+	float z;
+	float qx;
+	float qy;
+	float qz;
+	float qw;
 
+	void write_mocap_data(int, float, float, float, float, float, float, float);
+
+};
 
 void MOCAP_RIGID_BODY::write_mocap_data(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
 {
@@ -72,7 +85,6 @@ void MOCAP_RIGID_BODY::write_mocap_data(int ID, float qx, float qy, float qz, fl
 }
 
 extern MOCAP_RIGID_BODY body;
-
 
 // sender
 typedef struct
@@ -241,7 +253,7 @@ SOCKET CreateCommandSocket(unsigned long IP_Address, unsigned short uPort)
     return sockfd;
 }
 
-void Packet_Client_Start(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     int retval;
     char szMyIPAddress[128] = "";

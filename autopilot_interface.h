@@ -56,6 +56,7 @@
 // ------------------------------------------------------------------------------
 
 #include "serial_port.h"
+#include"gettimeofday.h"
 
 #include <signal.h>
 #include <time.h>
@@ -208,7 +209,7 @@ struct Mavlink_Messages {
 	mavlink_attitude_t attitude;
 
 	// Mocap
-	mavlink_att_pos_mocap_t att_pos_mocap
+	mavlink_att_pos_mocap_t att_pos_mocap;
 
 	// System Parameters?
 
@@ -263,7 +264,7 @@ public:
 	Mavlink_Messages current_messages;
 	mavlink_set_position_target_local_ned_t initial_position;
 
-	mavlink_att_pos_mocap_t initial_mocap_position
+	mavlink_att_pos_mocap_t initial_mocap_position;
 
 	void update_setpoint(mavlink_set_position_target_local_ned_t setpoint);
 
