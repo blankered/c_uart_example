@@ -107,9 +107,7 @@
     <ClCompile Include="serial_port.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\pthread-win32\Header.h" />
     <ClInclude Include="autopilot_interface.h" />
-    <ClInclude Include="Header.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\ardupilotmega\ardupilotmega.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\ardupilotmega\mavlink.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\ardupilotmega\mavlink_msg_adap_tuning.h" />

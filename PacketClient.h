@@ -1,34 +1,20 @@
 /* This file was automatically generated.  Do not edit! */
-
-
-class MOCAP_RIGID_BODY
-{
-public:
-	int ID;
-	float x;
-	float y;
-	float z;
-	float qx;
-	float qy;
-	float qz;
-	float qw;
-
-	void write_mocap_data(int, float, float, float, float, float, float, float);
-
-};
+#include<iostream>
 
 
 bool TimecodeStringify(unsigned int inTimecode,unsigned int inTimecodeSubframe,char *Buffer,int BufferSize);
 bool DecodeTimecode(unsigned int inTimecode,unsigned int inTimecodeSubframe,int *hour,int *minute,int *second,int *frame,int *subframe);
 
-void Packet_Client_Start(int argc,char *argv[]);
+int Packet_Client_Start(int argc,char *argv[]);
 
+/*
 SOCKET CreateCommandSocket(unsigned long IP_Address,unsigned short uPort);
 DWORD WINAPI DataListenThread(void *dummy);
 DWORD WINAPI CommandListenThread(void *dummy);
+*/
 
 extern int gCommandResponseCode;
-extern unsigned char gCommandResponseString[MAX_PATH];
+//extern unsigned char gCommandResponseString[MAX_PATH];
 extern int gCommandResponseSize;
 extern int gCommandResponse;
 extern int ServerVersion[4];
@@ -50,4 +36,4 @@ bool IPAddress_StringToAddr(char *szNameOrAddress,struct in_addr *Address);
 bool IPAddress_StringToAddr(char *szNameOrAddress,struct in_addr *Address);
 
 extern int NatNetVersion[4];
-extern MOCAP_RIGID_BODY body;
+

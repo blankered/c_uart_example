@@ -66,6 +66,18 @@ get_time_usec()
 	return _time_stamp.tv_sec*1000000 + _time_stamp.tv_usec;
 }
 
+void usleep(__int64 usec)
+{
+	HANDLE timer;
+	LARGE_INTEGER ft;
+
+	ft.QuadPart = -(10 * usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+
+	timer = CreateWaitableTimer(NULL, TRUE, NULL);
+	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+	WaitForSingleObject(timer, INFINITE);
+	CloseHandle(timer);
+}
 
 // ----------------------------------------------------------------------------------
 //   Setpoint Helper Functions
@@ -258,9 +270,9 @@ update_setpoint(mavlink_set_position_target_local_ned_t setpoint)
 // ------------------------------------------------------------------------------
 void
 Autopilot_Interface::
-update_mocap(mavlink_att_pos_mocap_t position)
+update_mocap(mavlink_att_pos_mocap_t mocap_position)
 {
-	current_position = position;
+	current_mocap_position = mocap_position;
 }
 
 
@@ -276,7 +288,7 @@ read_messages()
 	Time_Stamps this_timestamps;
 
 	// Blocking wait for new data
-	while ( !received_all and !time_to_exit )
+	while ( (!received_all) && (!time_to_exit) )
 	{
 		// ----------------------------------------------------------------------
 		//   READ MESSAGE
@@ -456,7 +468,7 @@ write_setpoint()
 	mavlink_set_position_target_local_ned_t sp = current_setpoint;
 
 	// double check some system parameters
-	if ( not sp.time_boot_ms )
+	if ( !sp.time_boot_ms )
 		sp.time_boot_ms = (uint32_t) (get_time_usec()/1000);
 	sp.target_system    = system_id;
 	sp.target_component = autopilot_id;
@@ -501,11 +513,11 @@ write_mocap()
 	mavlink_att_pos_mocap_t sp = current_mocap_position;
 
 	// double check some system parameters
-	if (not sp.time_boot_ms)
-		sp.time_boot_ms = (uint32_t)(get_time_usec() / 1000);
+	if (!sp.time_usec)
+		sp.time_usec = (uint32_t)(get_time_usec() / 1000);
 
-	sp.target_system = system_id;
-	sp.target_component = autopilot_id;
+	//sp.target_system = system_id;
+	//sp.target_component = autopilot_id;
 
 
 	// --------------------------------------------------------------------------
@@ -513,7 +525,7 @@ write_mocap()
 	// --------------------------------------------------------------------------
 
 	mavlink_message_t message;
-	mavlink_att_pos_mocap_encode(system_id, companion_id, &message, &sp);
+	mavlink_msg_att_pos_mocap_encode(system_id, companion_id, &message, &sp);
 
 
 	// --------------------------------------------------------------------------

@@ -1067,13 +1067,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\pthread-win32\Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PacketClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -64,7 +64,7 @@
 //Possible Windows Replacement for
 //#include <sys/time.h>
 #include <winsock2.h>
-
+#include <windows.h>
 #include <common/mavlink.h>
 
 // ------------------------------------------------------------------------------

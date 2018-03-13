@@ -29,6 +29,7 @@ Usage [optional]:
 */
 
 #include "PacketClient.h"
+#include "MOCAP_RIGID_BODY.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <conio.h>
@@ -54,28 +55,28 @@ Usage [optional]:
 
 #define MAX_PACKETSIZE				100000	// max size of packet (actual packet size is dynamic)
 
-//global MOCAP_RIGID_BODY body;
+//extern MOCAP_RIGID_BODY body;
 
-
+MOCAP_RIGID_BODY::MOCAP_RIGID_BODY()
+{
+}
 
 void MOCAP_RIGID_BODY::write_mocap_data(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
 {
-	 //MOCAP_RIGID_BODY body;
-	 ID = ID;
-	 qx = qx;
-	 qy = qy;
-	 qz = qz;
-	 qw = qw;
-	 x  = x;
-	 y  = y;
-	 z  = z;
+	m_ID = ID;
+	m_qx = qx;
+	m_qy = qy;
+	m_qz = qz;
+	m_qw = qw;
+	m_x = x;
+	m_y = y;
+	m_z = z;
 }
-
-extern MOCAP_RIGID_BODY body;
 
 
 // sender
 typedef struct
+
 {
     char szName[MAX_NAMELENGTH];            // sending app's name
     unsigned char Version[4];               // sending app's version [major.minor.build.revision]
@@ -241,7 +242,7 @@ SOCKET CreateCommandSocket(unsigned long IP_Address, unsigned short uPort)
     return sockfd;
 }
 
-void Packet_Client_Start(int argc, char* argv[])
+int Packet_Client_Start(int argc, char* argv[])
 {
     int retval;
     char szMyIPAddress[128] = "";
@@ -680,7 +681,9 @@ void Unpack(char* pData)
         }
         
         // rigid bodies
-        int nRigidBodies = 0;
+		MOCAP_RIGID_BODY body;
+
+		int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4); ptr += 4;
         printf("Rigid Body Count : %d\n", nRigidBodies);
         for (int j=0; j < nRigidBodies; j++)
@@ -698,10 +701,10 @@ void Unpack(char* pData)
             printf("pos: [%3.2f,%3.2f,%3.2f]\n", x,y,z);
             printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
 
-			//MOCAP_RIGID_BODY(ID, qx, qy, qz, qw, x, y, z);
-
-			//MOCAP_RIGID_BODY body;
-		    body.write_mocap_data(ID, qx, qy, qz, qw, x, y, z);
+			
+			//Write data to public access class
+			body.write_mocap_data(ID, qx, qy, qz, qw, x, y, z);
+		
 
             // associated marker positions
             int nRigidMarkers = 0;  memcpy(&nRigidMarkers, ptr, 4); ptr += 4;
