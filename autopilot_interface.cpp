@@ -681,7 +681,7 @@ start()
 
 	printf("CHECK FOR MESSAGES\n");
 
-	while ( not current_messages.sysid )
+	while ( !current_messages.sysid )
 	{
 		if ( time_to_exit )
 			return;
@@ -704,14 +704,14 @@ start()
 	// In which case set the id's manually.
 
 	// System ID
-	if ( not system_id )
+	if ( !system_id )
 	{
 		system_id = current_messages.sysid;
 		printf("GOT VEHICLE SYSTEM ID: %i\n", system_id );
 	}
 
 	// Component ID
-	if ( not autopilot_id )
+	if ( !autopilot_id )
 	{
 		autopilot_id = current_messages.compid;
 		printf("GOT AUTOPILOT COMPONENT ID: %i\n", autopilot_id);
@@ -724,7 +724,7 @@ start()
 	// --------------------------------------------------------------------------
 
 	// Wait for initial position ned
-	while ( not ( current_messages.time_stamps.local_position_ned &&
+	while ( !( current_messages.time_stamps.local_position_ned &&
 				  current_messages.time_stamps.attitude            )  )
 	{
 		if ( time_to_exit )
@@ -759,7 +759,7 @@ start()
 	if ( result ) throw result;
 
 	// wait for it to be started
-	while ( not writing_status )
+	while ( !writing_status )
 		usleep(100000); // 10Hz
 
 	// now we're streaming setpoint commands
@@ -826,7 +826,7 @@ void
 Autopilot_Interface::
 start_write_thread(void)
 {
-	if ( not writing_status == false )
+	if ( !writing_status == false )
 	{
 		fprintf(stderr,"write thread already running\n");
 		return;

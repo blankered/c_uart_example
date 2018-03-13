@@ -235,7 +235,7 @@ commands(Autopilot_Interface &api)
 	// SEND THE COMMAND
 	//api.update_setpoint(sp);
 
-	api.update_mocap
+	api.update_mocap;
 
 	// NOW pixhawk will try to move
 
