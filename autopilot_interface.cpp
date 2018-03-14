@@ -53,11 +53,14 @@
 // ------------------------------------------------------------------------------
 
 #include "autopilot_interface.h"
-
+#include "gettimeofday.h"
+#include "PacketClient.h"
+#include "MOCAP_RIGID_BODY_STRUCT.h"
 
 // ----------------------------------------------------------------------------------
 //   Time
 // ------------------- ---------------------------------------------------------------
+
 uint64_t
 get_time_usec()
 {
@@ -272,7 +275,36 @@ void
 Autopilot_Interface::
 update_mocap(mavlink_att_pos_mocap_t mocap_position)
 {
-	current_mocap_position = mocap_position;
+	bool data_stream_success;
+	
+	int ID   = MOCAP_DATA.m_ID;
+	float qx = MOCAP_DATA.m_qx;
+	float qy = MOCAP_DATA.m_qy;
+	float qz = MOCAP_DATA.m_qz;
+	float qw = MOCAP_DATA.m_qw;
+	float x  = MOCAP_DATA.m_x;
+	float y  = MOCAP_DATA.m_y;
+	float z  = MOCAP_DATA.m_z;
+
+	printf("ID : %d\n", ID);
+	printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+	printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
+
+
+	//if (mocap_timestamp(+1) > mocap_timestamp)
+	//{
+	//	data_stream_success = true;
+	//}
+	//else {
+	//	data_stream_success = false;
+	//	fprintf(stderr, "WARNING: could not get MOCAP Feed \n");
+	//}
+
+
+	//while(data_stream_success)
+	//current_mocap_position = mocap_position;
+
+
 }
 
 

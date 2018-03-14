@@ -613,7 +613,7 @@ _open_port(const char* gszPort)
 	//the next step is to configure it to the specific appli -
 	//cation.
 
-	return fileHandle;
+	return 1;
 }
 
 // ------------------------------------------------------------------------------
@@ -931,7 +931,7 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 
 	if (!SetCommTimeouts(fileHandle, &cmt)) {
 		//error code goes here
-		fprintf(stderr, "\nERROR: could not set configuration of fileHandle %d\n");
+		fprintf(stderr, "\nERROR: could not set configuration of fileHandle\n");
 	}
 
 
@@ -978,8 +978,6 @@ _read_port(uint8_t &cp)
 
 	//int result = read(fd, &cp, 1);
 
-	//data = &cp;
-
 	/******************************
 	*
 	* Reading from a file
@@ -988,34 +986,25 @@ _read_port(uint8_t &cp)
 	//the amount of the data actually
 	//read will be returned in
 	//this variable
-	DWORD read = -1;
-	ReadFile(
-		//the HANDLE that we
-		//are reading from
-		fileHandle,
-		//a pointer to an array
-		//of words that we
-		//want to read
-		&cp,
-		//the size of the
-		//array of values to
-		//be read
-		size,
-		//the address of a DWORD
-		//that the number of words
-		//actually read will
-		//be stored in
-		&read,
-		//a pointer to an
-		//overlapped_reader struct
-		//that is used in overlapped
-		//reading.  NULL in out case
-		NULL);
+	DWORD dwBytesTransferred;
+
+	int result =  ReadFile(fileHandle,
+			// Port handle
+			&cp,                
+			// Pointer to data to read
+			1,                    
+			// Number of bytes to read
+			&dwBytesTransferred,  
+			// Pointer to number of bytes				  
+			// read
+			NULL                  
+			// Must be NULL for Windows CE
+			);
 
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
-	return read;
+	return result;
 }
 
 // ------------------------------------------------------------------------------
@@ -1066,7 +1055,9 @@ _write_port(char *buf, unsigned len)
 	//the amount of the data actually
 	//written will be returned in
 	//this variable
-	DWORD write = -1;
+	DWORD dwError,
+		  dwNumBytesWritten;
+
 	WriteFile(
 		//the HANDLE that we
 		//are writing to
@@ -1083,7 +1074,7 @@ _write_port(char *buf, unsigned len)
 		//that the number of words
 		//actually written will
 		//be stored in
-		&write,
+		&dwNumBytesWritten,
 		//a pointer to an
 		//overlapped_reader struct
 		//that is used in overlapped
@@ -1100,7 +1091,6 @@ _write_port(char *buf, unsigned len)
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
-
-	return write;
+	return dwNumBytesWritten;
 }
 

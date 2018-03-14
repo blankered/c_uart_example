@@ -29,7 +29,7 @@ Usage [optional]:
 */
 
 #include "PacketClient.h"
-#include "MOCAP_RIGID_BODY.h"
+#include "MOCAP_RIGID_BODY_STRUCT.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <conio.h>
@@ -55,24 +55,25 @@ Usage [optional]:
 
 #define MAX_PACKETSIZE				100000	// max size of packet (actual packet size is dynamic)
 
-//extern MOCAP_RIGID_BODY body;
+MOCAP_RIGID_BODY_STRUCT MOCAP_DATA;
 
-MOCAP_RIGID_BODY::MOCAP_RIGID_BODY()
+void write_mocap_pose(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
 {
+
+	MOCAP_DATA.m_ID = ID;
+	MOCAP_DATA.m_qx = qx;
+	MOCAP_DATA.m_qy = qy;
+	MOCAP_DATA.m_qz = qz;
+	MOCAP_DATA.m_qw = qw;
+	MOCAP_DATA.m_x = x;
+	MOCAP_DATA.m_y = y;
+	MOCAP_DATA.m_z = z;
 }
 
-void MOCAP_RIGID_BODY::write_mocap_data(int ID, float qx, float qy, float qz, float qw, float x, float y, float z)
+void write_mocap_timestamp(float timestamp)
 {
-	m_ID = ID;
-	m_qx = qx;
-	m_qy = qy;
-	m_qz = qz;
-	m_qw = qw;
-	m_x = x;
-	m_y = y;
-	m_z = z;
+	MOCAP_DATA.m_timestamp = timestamp;
 }
-
 
 // sender
 typedef struct
@@ -680,9 +681,6 @@ void Unpack(char* pData)
             printf("\tMarker %d : pos = [%3.2f,%3.2f,%3.2f]\n",j,x,y,z);
         }
         
-        // rigid bodies
-		MOCAP_RIGID_BODY body;
-
 		int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4); ptr += 4;
         printf("Rigid Body Count : %d\n", nRigidBodies);
@@ -702,8 +700,8 @@ void Unpack(char* pData)
             printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
 
 			
-			//Write data to public access class
-			body.write_mocap_data(ID, qx, qy, qz, qw, x, y, z);
+			//WRITE DATA TO PUBLIC MOCAP CLASS
+			write_mocap_pose(ID, qx, qy, qz, qw, x, y, z);
 		
 
             // associated marker positions
@@ -937,6 +935,10 @@ void Unpack(char* pData)
             memcpy(&fTemp, ptr, 4); ptr += 4;
             timestamp = (double)fTemp;
         }
+
+
+		// GRAB MOCAP TIMESTAMP
+		write_mocap_timestamp(timestamp);
 
         // frame params
         short params = 0;  memcpy(&params, ptr, 2); ptr += 2;

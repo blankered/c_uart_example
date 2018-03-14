@@ -56,16 +56,19 @@
 // ------------------------------------------------------------------------------
 
 #include "serial_port.h"
-#include"gettimeofday.h"
+#include "PacketClient.h"
 
 #include <signal.h>
 #include <time.h>
 
 //Possible Windows Replacement for
 //#include <sys/time.h>
-#include <winsock2.h>
+//#include <stdint.h> // portable: uint64_t   MSVC: __int64 
+//#include <winsock2.h>
 #include <windows.h>
 #include <common/mavlink.h>
+
+
 
 // ------------------------------------------------------------------------------
 //   Defines
