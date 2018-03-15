@@ -103,7 +103,7 @@ initialize_defaults()
 	fd = -1;
 	status = SERIAL_PORT_CLOSED;
 
-	uart_name = TEXT("COM6");
+	uart_name = TEXT("COM3");
 	baudrate = 57600;
 
 	// Start mutex
@@ -593,7 +593,7 @@ _open_port(const char* gszPort)
 			//security attributes
 			//0 here means that this file handle
 			//cannot be inherited
-			0,
+			NULL,
 			//The port MUST exist before-hand
 			//we cannot create serial ports
 			OPEN_EXISTING,
@@ -608,7 +608,7 @@ _open_port(const char* gszPort)
 			//which will supply attributes and
 			//permissions.  Not used with
 			//port access.
-			0);
+			NULL);
 
 	//CreateFile() returns a HANDLE object that can then
 	//be used to access the port.If CreateFile() fails, the
@@ -617,6 +617,7 @@ _open_port(const char* gszPort)
 	if (fileHandle == INVALID_HANDLE_VALUE) {
 		//error handling code here
 		/* Could not open the port. */
+		printf("CreateFile failed with error %d.\n", GetLastError());
 		return(-1);
 	}
 
@@ -821,7 +822,7 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 	{
 		//  Handle the error.
 		printf("GetCommState failed with error %d.\n", GetLastError());
-		return (2);
+		return 0;
 	}
 
 	PrintCommState(dcb);       //  Output to console
@@ -1017,7 +1018,7 @@ _read_port(uint8_t &cp)
 	//this variable
 	DWORD dwBytesTransferred;
 
-	int result =  ReadFile(fileHandle,
+	bool read_result =  ReadFile(fileHandle,
 			// Port handle
 			&cp,                
 			// Pointer to data to read
@@ -1033,7 +1034,14 @@ _read_port(uint8_t &cp)
 	// Unlock
 	pthread_mutex_unlock(&lock);
 
-	return result;
+	if (!read_result)
+	{
+		//  Handle the error.
+		fprintf(stderr, "ReadFile failed with error %d.\n", GetLastError());
+		return 0;
+	}
+
+	return read_result;
 }
 
 // ------------------------------------------------------------------------------

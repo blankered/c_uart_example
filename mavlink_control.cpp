@@ -71,7 +71,7 @@ top (int argc, char **argv)
 #ifdef __APPLE__
 	char *uart_name = (char*)"/dev/tty.usbmodem1";
 #else
-	char *uart_name = (char*)"COM6";
+	char *uart_name = (char*)"COM3";
 #endif
 	int baudrate = 57600;
 
