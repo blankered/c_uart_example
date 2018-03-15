@@ -14,6 +14,9 @@ build project in Visual Studio
 -add pthreadVC1.lib to linker/Input addition dependencies. The file is in the pthread lib folder.
 -add mavlink/v2.0 to additional include directories in C/C++
 
+-> linker errors indicate you didn't setup the additional dependancies correctly
+-> missing mavlink.h indicates you didn't add the mavlink directory correctly
+
 Hardware Setup
 =========
 
