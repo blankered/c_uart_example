@@ -271,7 +271,9 @@ public:
 
 	void update_setpoint(mavlink_set_position_target_local_ned_t setpoint);
 
-	void update_mocap(mavlink_att_pos_mocap_t position);
+	void update_mocap();
+
+	//void update_mocap(mavlink_att_pos_mocap_t position);
 
 	void read_messages();
 	int  write_message(mavlink_message_t message);

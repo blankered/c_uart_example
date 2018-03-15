@@ -238,8 +238,8 @@ Autopilot_Interface(Serial_Port *serial_port_)
 	control_status = 0;      // whether the autopilot is in offboard control mode
 	time_to_exit   = false;  // flag to signal thread exit
 
-	read_tid  = 0; // read thread id
-	write_tid = 0; // write thread id
+	read_tid.x  = 0; // read thread id
+	write_tid.x = 0; // write thread id
 
 	system_id    = 0; // system id
 	autopilot_id = 0; // autopilot component id
@@ -273,10 +273,12 @@ update_setpoint(mavlink_set_position_target_local_ned_t setpoint)
 // ------------------------------------------------------------------------------
 void
 Autopilot_Interface::
-update_mocap(mavlink_att_pos_mocap_t mocap_position)
+update_mocap()
 {
 	bool data_stream_success;
-	
+	mavlink_att_pos_mocap_t mocap_position;
+
+
 	int ID   = MOCAP_DATA.m_ID;
 	float qx = MOCAP_DATA.m_qx;
 	float qy = MOCAP_DATA.m_qy;

@@ -1070,6 +1070,9 @@
     <ClInclude Include="PacketClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MOCAP_RIGID_BODY_STRUCT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MOCAP.rc">

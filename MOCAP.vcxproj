@@ -81,8 +81,11 @@
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\Users\CDSLAB-User\source\pthread-win32\Pre-built\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <LinkStatus>true</LinkStatus>
+      <AdditionalDependencies>C:\Users\CDSLAB-User\source\pthread-win32\Pre-built\lib\pthreadVC1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -447,6 +450,7 @@
     <ClInclude Include="mavlink\include\mavlink\v2.0\uavionix\uAvionix.h" />
     <ClInclude Include="mavlink\include\mavlink\v2.0\uavionix\version.h" />
     <ClInclude Include="mavlink_control.h" />
+    <ClInclude Include="MOCAP_RIGID_BODY_STRUCT.h" />
     <ClInclude Include="natnetsdk\include\NatNetClient.h" />
     <ClInclude Include="natnetsdk\include\NatNetRepeater.h" />
     <ClInclude Include="natnetsdk\include\NatNetServer.h" />

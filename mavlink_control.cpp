@@ -104,7 +104,7 @@ top (int argc, char **argv)
 	*
 	*
 	*/
-	int d = 1;
+	int d = 0;
 	char *add;
 
 	Packet_Client_Start(d,&add);

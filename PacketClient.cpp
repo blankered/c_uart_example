@@ -37,6 +37,7 @@ Usage [optional]:
 #include <ws2tcpip.h>
 
 #pragma warning( disable : 4996 )
+#pragma comment(lib, "Ws2_32.lib")
 
 #define MAX_NAMELENGTH              256
 
