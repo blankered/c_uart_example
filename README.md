@@ -9,10 +9,10 @@ This example will recieve one MAVlink message and send one MAVlink message.
 Building
 ========
 
-```
-$ cd c_uart_interface_example/
-$ make
-```
+build project in Visual Studio
+-add pthread libraries and include directories under project properties, under linker/gneral
+-add pthreadVC1.lib to linker/Input addition dependencies. The file is in the pthread lib folder.
+-add mavlink/v2.0 to additional include directories in C/C++
 
 Hardware Setup
 =========
