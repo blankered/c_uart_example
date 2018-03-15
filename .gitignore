@@ -20,6 +20,11 @@ mavlink_control
 /build/
 /Debug/
 
+/MOCAP.APS
+/MOCAP.rc
+/MOCAP.vcxproj.filters
+/MOCAP.vcxproj.user
+/MOCAP
 
 mavlink_control\.exe
 
