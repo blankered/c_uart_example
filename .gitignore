@@ -29,3 +29,7 @@ mavlink_control
 mavlink_control\.exe
 
 \.vs/
+
+*.vcxproj
+
+*.filters
