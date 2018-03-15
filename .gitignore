@@ -33,3 +33,9 @@ mavlink_control\.exe
 *.vcxproj
 
 *.filters
+
+*.APS
+
+*.rc
+
+*.user
