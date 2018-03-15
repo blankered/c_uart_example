@@ -39,3 +39,5 @@ mavlink_control\.exe
 *.rc
 
 *.user
+
+*.sln
