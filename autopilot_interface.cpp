@@ -686,6 +686,16 @@ start()
 	int result;
 
 	// --------------------------------------------------------------------------
+	//   Start MOCAP PACKET CLIENT
+	// --------------------------------------------------------------------------
+	
+	printf("START PACKET CLIENT THREAD \n");
+
+	int mocap_result;
+		result = pthread_create(&mocap_tid, NULL, *start_mocap_thread, this);
+	if (mocap_result) throw result;
+
+	// --------------------------------------------------------------------------
 	//   CHECK SERIAL PORT
 	// --------------------------------------------------------------------------
 
@@ -822,6 +832,7 @@ stop()
 	time_to_exit = true;
 
 	// wait for exit
+	pthread_join(mocap_tid, NULL);
 	pthread_join(read_tid ,NULL);
 	pthread_join(write_tid,NULL);
 
@@ -995,3 +1006,21 @@ start_autopilot_interface_write_thread(void *args)
 
 
 
+void*
+start_mocap_thread(void *args) 
+{
+	int d = 0;
+	char *add;
+	
+	try{
+		Packet_Client_Start(d, &add);
+
+	}
+	catch (int error) {
+		fprintf(stderr, "Warning, could not start Packet_Client interface\n");
+	}
+	
+
+	// done!
+	return NULL;
+}

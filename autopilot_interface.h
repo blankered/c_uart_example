@@ -132,7 +132,7 @@ void set_yaw_rate(float yaw_rate, mavlink_set_position_target_local_ned_t &sp);
 
 void* start_autopilot_interface_read_thread(void *args);
 void* start_autopilot_interface_write_thread(void *args);
-
+void* start_mocap_thread(void *args);
 
 // ------------------------------------------------------------------------------
 //   Data Structures
@@ -298,6 +298,7 @@ private:
 
 	pthread_t read_tid;
 	pthread_t write_tid;
+	pthread_t mocap_tid;
 
 	mavlink_set_position_target_local_ned_t current_setpoint;
 

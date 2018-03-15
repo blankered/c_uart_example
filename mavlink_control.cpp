@@ -95,19 +95,6 @@ top (int argc, char **argv)
 	 */
 	Serial_Port serial_port(uart_name, baudrate);
 
-	// --------------------------------------------------------------------------
-	//   PACKETCLIENT.CPP THREAD STARTUP
-	// --------------------------------------------------------------------------
-
-	/*
-	* Instantiate a serial port object
-	*
-	*
-	*/
-	int d = 0;
-	char *add;
-
-	Packet_Client_Start(d,&add);
 
 
 	/*
@@ -126,10 +113,6 @@ top (int argc, char **argv)
 	 *
 	 */
 	Autopilot_Interface autopilot_interface(&serial_port);
-
-	// --------------------------------------------------------------------------
-	//  Start PacketClient.cpp Thread
-	// --------------------------------------------------------------------------
 
 
 
