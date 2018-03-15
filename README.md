@@ -1,7 +1,7 @@
-C-UART Interface Example
+C-UART Tracking Tools MOCAP to MAVLINK Message
 ========================
 
-This is a simple MAVLink to UART interface example for *nix systems that can allow communication between Pixhawk and an offboard computer.
+This is a simple MAVLink to UART interface example for windows systems that can allow communication between OPTITRACK MOCAP windows station and Pixhawk.
 
 This example will recieve one MAVlink message and send one MAVlink message.
 
@@ -10,11 +10,15 @@ Building
 ========
 
 build project in Visual Studio
+
 -add pthread libraries and include directories under project properties, under linker/gneral
+
 -add pthreadVC1.lib to linker/Input addition dependencies. The file is in the pthread lib folder.
+
 -add mavlink/v2.0 to additional include directories in C/C++
 
 -> linker errors indicate you didn't setup the additional dependancies correctly
+
 -> missing mavlink.h indicates you didn't add the mavlink directory correctly
 
 Hardware Setup
