@@ -131,7 +131,10 @@ public:
 	~Serial_Port();
 
 	bool debug;
-	const char *uart_name;
+	//const char *uart_name;
+	//LPCTSTR *uart_name = TEXT("COM6");
+	LPCTSTR uart_name;
+
 	int  baudrate;
 	int  status;
 

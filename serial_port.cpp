@@ -59,6 +59,17 @@
 //   Serial Port Manager Class
 // ----------------------------------------------------------------------------------
 
+
+void PrintCommState(DCB dcb)
+{
+	//  Print some of the DCB structure values
+	_tprintf(TEXT("\nBaudRate = %d, ByteSize = %d, Parity = %d, StopBits = %d\n"),
+		dcb.BaudRate,
+		dcb.ByteSize,
+		dcb.Parity,
+		dcb.StopBits);
+}
+
 // ------------------------------------------------------------------------------
 //   Con/De structors
 // ------------------------------------------------------------------------------
@@ -88,11 +99,11 @@ Serial_Port::
 initialize_defaults()
 {
 	// Initialize attributes
-	debug = false;
+	debug = true;
 	fd = -1;
 	status = SERIAL_PORT_CLOSED;
 
-	uart_name = (char*)"/dev/ttyUSB0";
+	uart_name = TEXT("COM6");
 	baudrate = 57600;
 
 	// Start mutex
@@ -800,6 +811,21 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 	//    number of stop bits used
 	//  typically 1 or 2
 
+	//  Build on the current configuration by first retrieving all current
+	//  settings.
+	BOOL fSuccess;
+
+	fSuccess = GetCommState(fileHandle, &dcb);
+
+	if (!fSuccess)
+	{
+		//  Handle the error.
+		printf("GetCommState failed with error %d.\n", GetLastError());
+		return (2);
+	}
+
+	PrintCommState(dcb);       //  Output to console
+
 	switch (baud)
 	{
 	case 1200:
@@ -836,6 +862,8 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 		if (!BuildCommDCB("57600,n,8,1", &dcb)) {
 			fprintf(stderr, "\nERROR: Could not set desired baud rate of %d Baud\n", baud);
 			return false;
+		}else{
+			printf("Successfully built port");
 		}
 		break;
 	case 115200:
@@ -866,6 +894,7 @@ _setup_port(int baud, int data_bits, int stop_bits, bool parity, bool hardware_c
 		break;
 	}
 
+	// Example of build port as shown above
 	//if (!BuildCommDCB("9600,n,8,1", &dcb)) {
 	//	return false;
 	//}

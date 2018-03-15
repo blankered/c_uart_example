@@ -696,9 +696,9 @@ void Unpack(char* pData)
             float qy = 0; memcpy(&qy, ptr, 4); ptr += 4;
             float qz = 0; memcpy(&qz, ptr, 4); ptr += 4;
             float qw = 0; memcpy(&qw, ptr, 4); ptr += 4;
-            printf("ID : %d\n", ID);
-            printf("pos: [%3.2f,%3.2f,%3.2f]\n", x,y,z);
-            printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
+            //printf("ID : %d\n", ID);
+            //printf("pos: [%3.2f,%3.2f,%3.2f]\n", x,y,z);
+            //printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
 
 			
 			//WRITE DATA TO PUBLIC MOCAP CLASS

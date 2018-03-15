@@ -288,6 +288,7 @@ update_mocap()
 	float y  = MOCAP_DATA.m_y;
 	float z  = MOCAP_DATA.m_z;
 
+	printf("UPDATE_MOCAP_PROCESS RUNNING");
 	printf("ID : %d\n", ID);
 	printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
 	printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
@@ -692,8 +693,10 @@ start()
 	printf("START PACKET CLIENT THREAD \n");
 
 	int mocap_result;
-		result = pthread_create(&mocap_tid, NULL, *start_mocap_thread, this);
-	if (mocap_result) throw result;
+
+	result = pthread_create(&mocap_tid, NULL, *start_mocap_thread, this);
+
+	//if (mocap_result) throw result;
 
 	// --------------------------------------------------------------------------
 	//   CHECK SERIAL PORT
